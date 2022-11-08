@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: MIT
+pragmasolidity ^0.8.1;
+
+
+    // 接口合约
+interfaceIERC721 {
+    // 总量
+    functiontotalSupply() external view returns (uint);
+
+
+    // 铸造方法
+    functionmint(uint amount) externalpayable;
+
+
+    // 发送方法
+functiontransferFrom(
+  address from,
+  address to,
+  uint tokenId
+  ) external;
+}
+
+
+// 铸造合约
+contractERC721Mint {
+  // 构造函数(nft合约地址, 归集地址)
+  constructor(addressERC721, address owner) payable {
+  // 获取总量
+  uint t = IERC721(ERC721).totalSupply();
+// 铸造(0.05购买总价)(5购买数量)
+IERC721(ERC721).mint{value: 0.05ether}(5);
+// 归集
+for (uint i = 1; i <= 5; i++) {
+  // 发送操作,(当前合约地址,归集地址,tokenId)
+  IERC721(ERC721).transferFrom(address(this), owner, t + i);
+}
+// 自毁(收款地址,归集地址)
+selfdestruct(payable(owner));
+}
+}
+
+
+// 工厂合约
+contractMintFactory {
+// 所有者地址
+address owner;
+
+
+constructor() {
+// 所有者 = 合约部署者
+ owner = msg.sender;
+}
+
+
+// 部署方法,(NFT合约地址,抢购数量)
+functiondeploy(addressERC721, uint count) publicpayable {
+// 用抢购数量进行循环
+for (uint i; i < count; i++) {
+  // 部署合约(抢购总价)(NFT合约地址,所有者地址)
+  new ERC721Mint{value: 0.05ether}(ERC721, owner);
+ }
+}
+}
